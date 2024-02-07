@@ -1,0 +1,66 @@
+---
+title: "Untitled"
+author: "Yue Zhang"
+date: "2024-02-05"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+#This code chunk will tidy your knit PDF files, wrapping long code lines
+#For it to work, the "formatR" package needs to be installed
+#install.packages('formatR')
+knitr::opts_chunk$set(tidy.opts=list(width.cutoff=60), tidy=TRUE)
+
+```
+
+## OVERVIEW
+
+This R Markdown file aims to analyze the relationship between urban vegetation and air quality in Los Angeles, CA.
+
+
+## Set Working Directory and Load Packages
+```{r packages, message = FALSE, warning = FALSE}
+setwd("E:/MCRP/Spring2024/MP/")
+getwd()
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+library(ggthemes)
+library(faraway)
+library(olsrr)
+library(MASS)
+library(EnvStats)
+library(agricolae)
+library(stats)
+library(pls)
+library(glmnet)
+library(Metrics)
+
+```
+
+## Load Data
+```{r data, message = FALSE, warning = FALSE}
+T_2017 = read.csv("./Data/Traffic/2017_truck_aadtt_xlsx.csv")
+T_2018 = read.csv("./Data/Traffic/2018_truck_aadt.csv")
+T_2019 = read.csv("./Data/Traffic/2019-truck-aadt.csv")
+
+```
+## Merge traffic data
+```{r merge, message = FALSE, warning = FALSE}
+Traffic = merge(T_2017, T_2018, by = "DESCRIPTION")
+Traffic = Traffic[-c(2:4,8:14)]
+Traffic = merge(Traffic, T_2019, by = "DESCRIPTION")
+Traffic = Traffic[-c(12:15)]
+Traffic$AVG_AADT = rowMeans(Traffic[, c("TOTAL.VEHICLE.AADT.x",
+                                        "TOTAL.VEHICLE.AADT.y",
+                                        "VEHICLE_AADT_TOTAL")])
+Traffic$AVG_TruckCounts = rowMeans(Traffic[, c("TOTAL.TRUCK.COUNTS.x", "TOTAL.TRUCK.COUNTS.y",
+                                               "TRUCK_AADT_TOTAL")])
+Traffic$AVG_AADT = round(Traffic$AVG_AADT,0)
+Traffic$AVG_TruckCounts = round(Traffic$AVG_TruckCounts,0)
+Traffic = Traffic[c(1,5:8,15,16)]
+write.xlsx(Traffic, "E:/MCRP/Spring2024/MP/Data/Traffic/Traffic")
+```
+
