@@ -37,6 +37,7 @@ library(stats)
 library(pls)
 library(glmnet)
 library(Metrics)
+library(openxlsx)
 
 ```
 
@@ -61,6 +62,7 @@ Traffic$AVG_TruckCounts = rowMeans(Traffic[, c("TOTAL.TRUCK.COUNTS.x", "TOTAL.TR
 Traffic$AVG_AADT = round(Traffic$AVG_AADT,0)
 Traffic$AVG_TruckCounts = round(Traffic$AVG_TruckCounts,0)
 Traffic = Traffic[c(1,5:8,15,16)]
-write.xlsx(Traffic, "E:/MCRP/Spring2024/MP/Data/Traffic/Traffic")
+
+write.csv(Traffic, "E:/MCRP/Spring2024/MP/Data/Traffic/Traffic.csv")
 ```
 
