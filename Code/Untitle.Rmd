@@ -38,31 +38,192 @@ library(pls)
 library(glmnet)
 library(Metrics)
 library(openxlsx)
+library(sf)
+library(spdep)
+library(mgcv)
 
 ```
 
 ## Load Data
 ```{r data, message = FALSE, warning = FALSE}
-T_2017 = read.csv("./Data/Traffic/2017_truck_aadtt_xlsx.csv")
-T_2018 = read.csv("./Data/Traffic/2018_truck_aadt.csv")
-T_2019 = read.csv("./Data/Traffic/2019-truck-aadt.csv")
+LA = read.csv("E:/MCRP/Spring2024/MP//Data/Processed/LA.csv")
+LA = LA[,-c(1)]
+us_census = st_read("./Data/Spatial/2010_Census_Tracts/2010_Census_Tracts.shp")
+us_census = st_transform(us_census, crs = 4269)
+print(st_crs(us_census))
 
 ```
-## Merge traffic data
-```{r merge, message = FALSE, warning = FALSE}
-Traffic = merge(T_2017, T_2018, by = "DESCRIPTION")
-Traffic = Traffic[-c(2:4,8:14)]
-Traffic = merge(Traffic, T_2019, by = "DESCRIPTION")
-Traffic = Traffic[-c(12:15)]
-Traffic$AVG_AADT = rowMeans(Traffic[, c("TOTAL.VEHICLE.AADT.x",
-                                        "TOTAL.VEHICLE.AADT.y",
-                                        "VEHICLE_AADT_TOTAL")])
-Traffic$AVG_TruckCounts = rowMeans(Traffic[, c("TOTAL.TRUCK.COUNTS.x", "TOTAL.TRUCK.COUNTS.y",
-                                               "TRUCK_AADT_TOTAL")])
-Traffic$AVG_AADT = round(Traffic$AVG_AADT,0)
-Traffic$AVG_TruckCounts = round(Traffic$AVG_TruckCounts,0)
-Traffic = Traffic[c(1,5:8,15,16)]
 
-write.csv(Traffic, "E:/MCRP/Spring2024/MP/Data/Traffic/Traffic.csv")
+## GLM
+```{r GLM, message = FALSE, warning = FALSE}
+str(LA)
+LA$Percentage.of.below.18 = as.numeric(LA$Percentage.of.below.18)
+LA$Percentage.of.above.65 = as.numeric(LA$Percentage.of.above.65)
+LA$Percentage.of.non.white.pop = as.numeric(LA$Percentage.of.non.white.pop)
+LA$Percentage.of.less.than.HS = as.numeric(LA$Percentage.of.less.than.HS)
+LA$Percentage.of.unemployment = as.numeric(LA$Percentage.of.unemployment)
+head(LA)
+
+#Linear regression
+LA_regression = lm(data = LA, PM2.5 ~ .-Geo_FIPS)
+summary(LA_regression)
+par(mfrow = c(2,2), mar=c(3,3,3,3))
+plot(LA_regression, cex.axis = 1.2, cex.lab = 1.5)
+
+#Box cox
+bc = MASS::boxcox(LA_regression)
+lambda = bc$x[which.max(bc$y)]
+# The likelihood is maximized with lambda about -0.46, we rounded to lambda = -0.5.
+y = (LA$PM2.5^-0.5-1)/-0.5
+LA_regression2 = lm(data = LA, y ~ .-Geo_FIPS - PM2.5)
+summary(LA_regression2)
+par(mfrow = c(2,2), mar=c(3,3,3,3))
+plot(LA_regression2, cex.axis = 1.2, cex.lab = 1.5)
+
+```
+
+## Filter Outliers and Influential Observations
+```{r filter, message = FALSE, warning = FALSE}
+h = hatvalues(LA_regression2)
+sort(h)
+sr = rstudent(LA_regression2)
+sort(sr)
+df = dffits(LA_regression2)
+sort(df)
+observations = names(sr)
+n = nrow(LA)
+for (observation in observations){
+  obs_sr = sr[observation]
+  p_value = 2*pt(obs_sr, (n-13))
+  if(p_value < 0.05){
+    print(paste(observation, "is an outlier"))
+  }
+}
+
+p = length(coef(LA_regression2))
+avgLeverage = 2*p/n
+highLeverage = which(h > avgLeverage)
+influential = which(df > 2*sqrt(p/n))
+print(paste("High Leverage Point:", toString(highLeverage)))
+print(paste("Influential:", toString(influential)))
+```
+
+## Subset Best Model
+```{r subset, warning = FALSE, message = FALSE, fig.dim = c(10, 8)}
+LA_clean = LA[-c(
+  14,
+  16,
+  33,
+  39,
+  40,
+  41,
+  45,
+  49,
+  54,
+  57,
+  59,
+  60,
+  78,
+  80,
+  81,
+  82,
+  83,
+  86,
+  87,
+  230,
+  232,
+  237,
+  238,
+  241,
+  243,
+  244,
+  252,
+  257,
+  258,
+  259,
+  260,
+  273,
+  277,
+  282,
+  284,
+  285,
+  287,
+  288,
+  289,
+  290,
+  292,
+  293,
+  295,
+  297,
+  436,
+  443,
+  458,
+  460,
+  461,
+  480,
+  481,
+  486,
+  746,
+  928,
+  929,
+  932
+),]
+
+y2 = (LA_clean$PM2.5^-0.5-1)/-0.5
+LA_regression3 = lm(data = LA_clean,
+                    y2 ~ . - Geo_FIPS - PM2.5)
+summary(LA_regression3)
+par(mfrow = c(2,2), mar=c(3,3,3,3))
+plot(LA_regression3, cex.axis = 1.5, cex.lab = 1.5)
+olsrr::ols_step_best_subset(LA_regression3)
+
+#reduced model: log(as.numeric(ED_Visit_Rate_per_10000)) ~ log(Percentage.on.Non.White.Population) + log(Percentage.of.Less.than.HS) + log(Percentage.of.Unemployment) + log(MHI)
+NY_regression4 = lm(
+  data = NY_dataset_clean,
+  log(as.numeric(ED_Visit_Rate_per_10000)) ~ log(Percentage.on.Non.White.Population) + log(Percentage.of.Less.than.HS) +
+    log(Percentage.of.Unemployment) + log(MHI)
+)
+summary(NY_regression4)
+par(mfrow = c(2,2), mar=c(3,3,3,3))
+plot(NY_regression4, cex.axis = 1.2, cex.lab = 1.5)
+h2 = hatvalues(NY_regression4)
+sort(h2)
+sr2 = rstudent(NY_regression4)
+sort(sr2)
+df2 = dffits(NY_regression4)
+sort(df2)
+observations2 = names(sr2)
+for (observation2 in observations2){
+  obs_sr2 = sr[observation2]
+  p_value2 = 2*pt(obs_sr2, (n-6))
+  if(p_value2 < 0.05){
+    print(paste(observation2, "is an outlier"))
+  }
+}
+p2 = length(coef(NY_regression4))
+avgLeverage2 = 2*p2/n
+highLeverage2 = which(h2 > avgLeverage2)
+influential2 = which(df2 > 2*sqrt(p2/n))
+print(paste("High Leverage Point:", toString(highLeverage2)))
+print(paste("Influential:", toString(influential2)))
+
+```
+
+## Spatial error model
+```{r spatial, message = FALSE, warning = FALSE}
+LA$Geo_FIPS = paste("", "0", LA$Geo_FIPS)
+LA$Geo_FIPS = gsub(" ", "", LA$Geo_FIPS)
+us_census = us_census %>% rename("Geo_FIPS" = "GEOID10")
+LA_spatial = left_join(us_census, LA, by = "Geo_FIPS")
+LA_spatial = na.omit(LA_spatial)
+neighbor = poly2nb(LA_spatial)
+spatialweights = nb2listw(neighbor)
+plot(st_geometry(LA_spatial))
+
+```
+
+## Generalized additive model
+```{r GAM, message = FALSE, warning = FALSE}
+LA_gam = gam()
 ```
 
