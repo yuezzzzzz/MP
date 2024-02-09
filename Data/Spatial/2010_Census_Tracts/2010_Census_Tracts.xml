@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+    <idinfo>
+        <citation>
+            <citeinfo>
+                <title>Census Tracts (2010)</title>
+                <geoform>vector digital data</geoform>
+            </citeinfo>
+        </citation>
+        <descript>
+            <abstract>What is unique about LA County’s data?It is clipped to the ocean boundary. Raw Census data includes a 3 mile buffer into the ocean, which impacts cartography.IMPORTANT! It has been updated to the 2012 Census Geography Update, which merged Tracts 1370.00 and 9304.01 into the combined tract 1370.00. So the CT10 field actually reflects the 2012 Census update, which is used for all population products 2012 and later.How was this data created?This data was downloaded from Census Bureau website: http://www.census.gov/cgi-bin/geo/shapefiles2010/file-download and clipped to the County Boundary using ESRI’s ArcGIS Desktop. Two new fields were added in census tract data – area in square feet and shape length in feet. This dataset has unique identifier field “GEOID10” for each record and the census tract number fields “CT10” and “LABEL” (6-digit number and 6-digit number with decimal point, respectively).</abstract>
+            <purpose>Hosted feature layer of 2010 Census Tracts for the purposes of visualization and analysis. A census tract is a small, relatively permanent statistical subdivision of a county delineated for the purpose of presenting data. Census tracts ideally contain about 4,000 people and 1,600 housing units.</purpose>
+        </descript>
+        <spdom>
+            <bounding>
+                <westbc>-118.953520</westbc>
+                <eastbc>-117.644097</eastbc>
+                <northbc>34.823531</northbc>
+                <southbc>32.792286</southbc>
+            </bounding>
+        </spdom>
+        <keywords>
+            <theme>
+                <themekt>None</themekt>
+                <themekey>census</themekey>
+                <themekey>census tracts</themekey>
+                <themekey>2010</themekey>
+                <themekey>demographic</themekey>
+            </theme>
+        </keywords>
+        <accconst>None</accconst>
+        <useconst>The data herein is for informational purposes, and may not have been prepared for or be suitable for legal, engineering, or surveying intents. The County of Los Angeles reserves the right to change, restrict, or discontinue access at any time.  All users of the maps and data presented on https://lacounty.maps.arcgis.com or deriving from any LA County REST URLs agree to the &amp;quot;Terms of Use&amp;quot; outlined on the County of LA Enterprise GIS (eGIS) Hub (https://egis-lacounty.hub.arcgis.com/pages/terms-of-use).</useconst>
+        <datacred>Los Angeles County, US Census Bureau</datacred>
+        <native>Esri ArcGIS 10.5.1.7333</native>
+    </idinfo>
+    <spdoinfo>
+        <direct>Vector</direct>
+        <ptvctinf>
+            <sdtsterm>
+                <sdtstype>GT-polygon composed of chains</sdtstype>
+                <ptvctcnt>2344</ptvctcnt>
+            </sdtsterm>
+        </ptvctinf>
+    </spdoinfo>
+    <eainfo>
+        <detailed>
+            <enttyp>
+                <enttypl>TRACT10.shp</enttypl>
+                <enttypd>2010 Census Census Tract County-based</enttypd>
+                <enttypds>U.S. Census Bureau</enttypds>
+            </enttyp>
+            <attr>
+                <attrlabl>OBJECTID</attrlabl>
+                <attrdef>Internal feature number.</attrdef>
+                <attrdefs>ESRI</attrdefs>
+                <attrdomv>
+                                        
+                    <udom>Sequential unique whole numbers that are automatically generated.</udom>
+                                    
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl>Shape</attrlabl>
+                <attrdef>Feature geometry.</attrdef>
+                <attrdefs>ESRI</attrdefs>
+                <attrdomv>
+                                        
+                    <udom>Coordinates defining the features.</udom>
+                                    
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl>GEOID10</attrlabl>
+                <attrdef>Census tract identifier; a concatenation of 2010 Census state
+                 FIPS code, county FIPS code, and census tract code</attrdef>
+                <attrdefs>U.S. Census Bureau</attrdefs>
+                <attrdomv>
+                                        
+                    <codesetd>
+                                                
+                        <codesetn>INCITS.38-200x (R2004), Codes for the Identification of
+                      the States, the District of Columbia, Puerto Rico, and the
+                      Insular Areas of the United States (Formerly FIPS 5-2),
+                      INCITS.31-200x (R2007), Codes for the Identification of
+                      the Counties and Equivalent Areas of the United States,
+                      Puerto Rico, and the Insular Areas of the United States
+                      (Formerly FIPS 6-4), and the census tract code found in
+                      TRACTCE10</codesetn>
+                                                
+                        <codesets>U.S. Census Bureau</codesets>
+                                            
+                    </codesetd>
+                                    
+                </attrdomv>
+            </attr>
+            <attr>
+                <attrlabl>CT10</attrlabl>
+            </attr>
+            <attr>
+                <attrlabl>X_Center</attrlabl>
+            </attr>
+            <attr>
+                <attrlabl>Y_Center</attrlabl>
+            </attr>
+            <attr>
+                <attrlabl>LABEL</attrlabl>
+            </attr>
+            <attr>
+                <attrlabl>Shape.STArea()</attrlabl>
+            </attr>
+            <attr>
+                <attrlabl>Shape.STLength()</attrlabl>
+            </attr>
+        </detailed>
+    </eainfo>
+    <metainfo>
+        <metd>20190403</metd>
+        <metstdn>FGDC Content Standard for Digital Geospatial Metadata</metstdn>
+        <metstdv>FGDC-STD-001-1998</metstdv>
+        <mettc>local time</mettc>
+    </metainfo>
+</metadata>
